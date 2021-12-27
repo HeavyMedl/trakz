@@ -59,6 +59,15 @@ export default class CLI {
   }
 
   /**
+   * [getArtists description]
+   *
+   * @return  {[type]}  [return description]
+   */
+  async getArtists() {
+    return Object.keys(this.plexMusic.getArtistMap());
+  }
+
+  /**
    * [description]
    */
   async getTracksFromAllArtists(popular = false, limit = -1, shuffle = false) {

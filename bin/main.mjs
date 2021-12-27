@@ -51,9 +51,14 @@ program
       const cli = new CLI();
       await cli.init();
 
+      if (names.length === 0) {
+        // No artists supplied, show artists available?
+        return CLI.stdout(cli.getArtists());
+      }
+
+      // Get the tracks according to what the user specified with options
       let tracks = [];
       if (allArtists) {
-        // TODO: get tracks from all artists
         tracks = await cli.getTracksFromAllArtists(popular, limit, shuffle);
       } else {
         tracks = popular
@@ -61,12 +66,16 @@ program
           : await cli.getAllTracks(names, limit, shuffle);
       }
 
+      // Do something with the resultant tracks
       if (tracks.length > 0) {
         if (copy) {
           cli.copyTracks(tracks, copy, normalizeTitle);
         } else {
           json ? CLI.stdout(tracks) : CLI.displayTracks(tracks, normalizeTitle);
         }
+      } else if (names.length === 1) {
+        // If we got here, there were no tracks for the artist supplied.
+        // perhaps a typo or case issue? Do we do an interactive mode?
       } else {
         CLI.stdout('No results, homie.');
       }
