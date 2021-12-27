@@ -11,6 +11,8 @@ import CLI from '../src/cli.mjs';
 //  - Copy destination
 // TODO: validate config
 // TODO: Create plex playlist in api
+// TODO: interactive prompt when user passes no artist or just "trakz", or if
+//  user uses "artist" command but no artist
 // TODO: If tracks is empty ([]), show the closest match to what the
 // user typed.. Perhaps misspelled or case didn't match. Use
 // levenshtein algorithm.
@@ -24,11 +26,11 @@ program
 program
   .command('artist')
   .description('Get tracks for artists')
-  .option('-n, --name <artist name>', 'The artist name')
+  .option('-n, --name <artist name...>', 'The artist name')
   .option('-p, --popular', 'Popular tracks from Plex metadata')
   .option('-s, --shuffle', 'Shuffle the order of the resultant playlist')
-  .option('-l, --limit <number>', 'Limit to first N tracks')
-  .option('-j, --json', 'Return tracks as JSON') // TODO
+  .option('-l, --limit <number>', 'Limit to first N tracks of artist')
+  .option('-j, --json', 'Return tracks as JSON')
   .option('-c, --copy [destination]', 'Copy tracks to destination')
   .option(
     '-nt, --normalize-title',
@@ -36,7 +38,7 @@ program
   )
   .action(
     async ({
-      name = undefined,
+      name: names = [],
       popular = false,
       shuffle = false,
       limit = -1,
@@ -47,8 +49,8 @@ program
       const cli = new CLI();
       await cli.init();
       const tracks = popular
-        ? await cli.getPopularTracks(name, limit, shuffle)
-        : await cli.getAllTracks(name, limit, shuffle);
+        ? await cli.getPopularTracks(names, limit, shuffle)
+        : await cli.getAllTracks(names, limit, shuffle);
 
       if (tracks.length > 0) {
         if (copy) {
@@ -65,7 +67,7 @@ program
 program.on('--help', () => {
   process.stdout.write(`
 Examples:
-  $ setlist artist [--name <artist-name>]\n`);
+  $ trakz artist [--name <artist-name>]\n`);
 });
 
 program.parse(process.argv);

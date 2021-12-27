@@ -31,14 +31,11 @@ export default class CLI {
   /**
    * [description]
    */
-  mutate(tracks, { limit = -1, shuffle = false }) {
+  filter(tracks, { limit = -1 }) {
     const filteredTracks = CLI.getFirstNumOfTracks(
       this.filterSupportedContainers(tracks),
       limit,
     );
-    if (shuffle) {
-      CLI.shuffle(filteredTracks);
-    }
     return filteredTracks;
   }
 
@@ -64,24 +61,41 @@ export default class CLI {
   /**
    * [description]
    */
-  async getAllTracks(title = '', limit = -1, shuffle = false) {
-    return this.mutate(await this.plexMusic.getAllTracksByArtistTitle(title), {
-      limit,
-      shuffle,
-    });
+  async getAllTracks(artists = [], limit = -1, shuffle = false) {
+    let tracks = await Promise.all(
+      artists.map(async (artist) => this.filter(
+        await this.plexMusic.getAllTracksByArtistTitle(artist),
+        {
+          limit,
+        },
+      )),
+    );
+    tracks = tracks.flat();
+    if (shuffle) {
+      CLI.shuffle(tracks);
+    }
+    return tracks;
   }
 
   /**
    * [description]
    */
-  async getPopularTracks(title = '', limit = -1, shuffle = false) {
-    const { ratingKey: artistId } = await this.plexMusic.getArtistByTitle(
-      title,
+  async getPopularTracks(artists = [], limit = -1, shuffle = false) {
+    let tracks = await Promise.all(
+      artists.map(async (artist) => {
+        const { ratingKey: artistId } = await this.plexMusic.getArtistByTitle(
+          artist,
+        );
+        return this.filter(await this.plexMusic.getPopularTracks(artistId), {
+          limit,
+        });
+      }),
     );
-    return this.mutate(await this.plexMusic.getPopularTracks(artistId), {
-      limit,
-      shuffle,
-    });
+    tracks = tracks.flat();
+    if (shuffle) {
+      CLI.shuffle(tracks);
+    }
+    return tracks;
   }
 
   /**
