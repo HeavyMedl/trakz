@@ -27,6 +27,7 @@ program
   .command('artist')
   .description('Get tracks for artists')
   .option('-n, --name <artist name...>', 'The artist name')
+  .option('-a, --all-artists', 'All artists from the music library')
   .option('-p, --popular', 'Popular tracks from Plex metadata')
   .option('-s, --shuffle', 'Shuffle the order of the resultant playlist')
   .option('-l, --limit <number>', 'Limit to first N tracks of artist')
@@ -39,6 +40,7 @@ program
   .action(
     async ({
       name: names = [],
+      allArtists = false,
       popular = false,
       shuffle = false,
       limit = -1,
@@ -48,9 +50,16 @@ program
     }) => {
       const cli = new CLI();
       await cli.init();
-      const tracks = popular
-        ? await cli.getPopularTracks(names, limit, shuffle)
-        : await cli.getAllTracks(names, limit, shuffle);
+
+      let tracks = [];
+      if (allArtists) {
+        // TODO: get tracks from all artists
+        tracks = await cli.getTracksFromAllArtists(popular, limit, shuffle);
+      } else {
+        tracks = popular
+          ? await cli.getPopularTracks(names, limit, shuffle)
+          : await cli.getAllTracks(names, limit, shuffle);
+      }
 
       if (tracks.length > 0) {
         if (copy) {

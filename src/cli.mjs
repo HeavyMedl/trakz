@@ -61,6 +61,16 @@ export default class CLI {
   /**
    * [description]
    */
+  async getTracksFromAllArtists(popular = false, limit = -1, shuffle = false) {
+    const artists = Object.keys(await this.plexMusic.getArtistMap());
+    return popular
+      ? this.getPopularTracks(artists, limit, shuffle)
+      : this.getAllTracks(artists, limit, shuffle);
+  }
+
+  /**
+   * [description]
+   */
   async getAllTracks(artists = [], limit = -1, shuffle = false) {
     let tracks = await Promise.all(
       artists.map(async (artist) => this.filter(
