@@ -1,0 +1,28 @@
+{
+  "name": "trakz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/api.mjs",
+  "module": "src/api.mjs",
+  "bin": {
+    "trakz": "bin/main.mjs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async-limiter": "^2.0.0",
+    "cli-progress": "^3.9.1",
+    "commander": "^8.3.0",
+    "cp-file": "^9.1.0",
+    "fast-memoize": "^2.5.2",
+    "plex-api": "^5.3.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.3"
+  }
+}
