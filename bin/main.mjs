@@ -4,7 +4,6 @@
 import { Command } from 'commander/esm.mjs';
 import CLI from '../src/cli.mjs';
 
-// TODO: port over track mutation functions from api to cli
 // TODO: interactive config generator
 //  - hostname and token
 //  - library section name (Music)

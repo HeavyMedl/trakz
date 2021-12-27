@@ -5,9 +5,7 @@ export default class PlexMusic {
     const {
       hostname = '',
       token = '',
-      supportedContainers = ['mp3', 'flac'],
     } = options;
-    this.supportedContainers = supportedContainers;
     this.plexAPI = new PlexAPI({
       hostname,
       token,
@@ -199,51 +197,5 @@ export default class PlexMusic {
       allTracks = allTracks.concat(tracks);
     }
     return allTracks;
-  }
-
-  /**
-   * [supportedContainers description]
-   *
-   * @param   {undefined[]}  tracks  [tracks description]
-   *
-   * @return  {[]}                   [return description]
-   */
-  filterSupportedContainers(tracks = []) {
-    return tracks.filter((track) => this.supportedContainers.includes(track.container));
-  }
-
-  /**
-   * [description]
-   */
-  static getFirstNumOfTracks(tracks = [], num = 10) {
-    return tracks.slice(0, num);
-  }
-
-  /**
-   * [shuffle description]
-   *
-   * @param   {[type]}  array  [array description]
-   *
-   * @return  {[type]}         [return description]
-   */
-  static shuffle(array) {
-    let currentIndex = array.length;
-    let randomIndex;
-
-    // While there remain elements to shuffle...
-    while (currentIndex !== 0) {
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-
-      // And swap it with the current element.
-      // eslint-disable-next-line no-param-reassign
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
-    }
-
-    return array;
   }
 }

@@ -13,8 +13,9 @@ export default class CLI {
    *
    * @return  {[type]}  [return description]
    */
-  constructor() {
+  constructor(options = {}) {
     this.getConfig = memoize(this.getConfig);
+    this.supportedContainers = options.supportedContainers || ['mp3', 'flac'];
   }
 
   /**
@@ -31,12 +32,12 @@ export default class CLI {
    * [description]
    */
   mutate(tracks, { limit = -1, shuffle = false }) {
-    const filteredTracks = PlexMusic.getFirstNumOfTracks(
-      this.plexMusic.filterSupportedContainers(tracks),
+    const filteredTracks = CLI.getFirstNumOfTracks(
+      this.filterSupportedContainers(tracks),
       limit,
     );
     if (shuffle) {
-      PlexMusic.shuffle(filteredTracks);
+      CLI.shuffle(filteredTracks);
     }
     return filteredTracks;
   }
@@ -138,6 +139,17 @@ export default class CLI {
   }
 
   /**
+   * [supportedContainers description]
+   *
+   * @param   {undefined[]}  tracks  [tracks description]
+   *
+   * @return  {[]}                   [return description]
+   */
+  filterSupportedContainers(tracks = []) {
+    return tracks.filter((track) => this.supportedContainers.includes(track.container));
+  }
+
+  /**
    * [getNormalizedTitle description]
    *
    * @return  {[type]}  [return description]
@@ -208,5 +220,40 @@ export default class CLI {
       fs.readFileSync(path.resolve('./package.json')),
     );
     return version;
+  }
+
+  /**
+   * [description]
+   */
+  static getFirstNumOfTracks(tracks = [], num = 10) {
+    return tracks.slice(0, num);
+  }
+
+  /**
+   * [shuffle description]
+   *
+   * @param   {[type]}  array  [array description]
+   *
+   * @return  {[type]}         [return description]
+   */
+  static shuffle(array) {
+    let currentIndex = array.length;
+    let randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex !== 0) {
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      // And swap it with the current element.
+      // eslint-disable-next-line no-param-reassign
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
   }
 }
