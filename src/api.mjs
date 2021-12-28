@@ -117,7 +117,8 @@ export default class PlexMusic {
     const { MediaContainer: { Metadata = [] } = {} } = (await this.getArtists()) || {};
     return (
       (Metadata || []).find(
-        ({ title: artistTitle }) => title === artistTitle,
+        ({ title: artistTitle }) => title.split(' ').join('').toLowerCase()
+          === artistTitle.split(' ').join('').toLowerCase(),
       ) || {}
     );
   }
