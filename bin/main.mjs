@@ -4,6 +4,7 @@
 import { Command } from 'commander/esm.mjs';
 import CLI from '../src/cli.mjs';
 
+// TODO: all tracks doesn't include singles, EPs, or compilations.
 // TODO: interactive config generator
 //  - hostname and token
 //  - library section name (Music)
@@ -53,7 +54,7 @@ program
 
       if (names.length === 0) {
         // No artists supplied, show artists available?
-        return CLI.stdout(cli.getArtists());
+        return CLI.display(await cli.getArtists());
       }
 
       // Get the tracks according to what the user specified with options
@@ -71,11 +72,12 @@ program
         if (copy) {
           cli.copyTracks(tracks, copy, normalizeTitle);
         } else {
-          json ? CLI.stdout(tracks) : CLI.displayTracks(tracks, normalizeTitle);
+          json ? CLI.stdout(tracks) : CLI.display(tracks, normalizeTitle);
         }
       } else if (names.length === 1) {
         // If we got here, there were no tracks for the artist supplied.
         // perhaps a typo or case issue? Do we do an interactive mode?
+        CLI.stdout('No results, homie.');
       } else {
         CLI.stdout('No results, homie.');
       }

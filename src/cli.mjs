@@ -64,14 +64,14 @@ export default class CLI {
    * @return  {[type]}  [return description]
    */
   async getArtists() {
-    return Object.keys(this.plexMusic.getArtistMap());
+    return Object.keys(await this.plexMusic.getArtistMap());
   }
 
   /**
    * [description]
    */
   async getTracksFromAllArtists(popular = false, limit = -1, shuffle = false) {
-    const artists = Object.keys(await this.plexMusic.getArtistMap());
+    const artists = await this.getArtists();
     return popular
       ? this.getPopularTracks(artists, limit, shuffle)
       : this.getAllTracks(artists, limit, shuffle);
@@ -197,7 +197,7 @@ export default class CLI {
   }
 
   /**
-   * [displayTracks description]
+   * [display description]
    *
    * @param   {undefined[]}  tracks          [tracks description]
    * @param   {[type]}       normalizeTitle  [normalizeTitle description]
@@ -205,9 +205,9 @@ export default class CLI {
    *
    * @return  {[]}                           [return description]
    */
-  static displayTracks(tracks = [], normalizeTitle = false) {
-    tracks.forEach((track) => {
-      CLI.stdout(normalizeTitle ? CLI.getNormalizedTitle(track) : track.file);
+  static display(items = [], normalizeTitle = false) {
+    items.forEach((item) => {
+      CLI.stdout(normalizeTitle ? CLI.getNormalizedTitle(item) : item.file || item);
     });
   }
 
