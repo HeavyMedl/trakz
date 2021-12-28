@@ -27,7 +27,7 @@ program
 program
   .command('artist')
   .description('Get tracks for artists')
-  .option('-n, --name <artist name...>', 'The artist name')
+  .option('-n, --name <artist name...>', 'The artist(s) name(s)')
   .option('-a, --all-artists', 'All artists from the music library')
   .option('-p, --popular', 'Popular tracks from Plex metadata')
   .option('-s, --shuffle', 'Shuffle the order of the resultant playlist')

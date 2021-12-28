@@ -2,10 +2,7 @@ import PlexAPI from 'plex-api';
 
 export default class PlexMusic {
   constructor(options = {}) {
-    const {
-      hostname = '',
-      token = '',
-    } = options;
+    const { hostname = '', token = '' } = options;
     this.plexAPI = new PlexAPI({
       hostname,
       token,
@@ -185,17 +182,10 @@ export default class PlexMusic {
    * @return  {[type]}         [return description]
    */
   async getAllTracksByArtistTitle(t) {
-    const albums = (await this.getAlbumsByArtistTitle(t)) || [];
-    let allTracks = [];
-    // eslint-disable-next-line no-restricted-syntax
-    for (const { key } of albums) {
-      const {
-        MediaContainer: { Metadata: trackObjects },
-        // eslint-disable-next-line no-await-in-loop
-      } = await this.query(key);
-      const tracks = PlexMusic.getTracks(trackObjects);
-      allTracks = allTracks.concat(tracks);
-    }
-    return allTracks;
+    const { ratingKey: artistId = '' } = await this.getArtistByTitle(t);
+    const {
+      MediaContainer: { Metadata: trackObjects = [] },
+    } = await this.query(`/library/metadata/${artistId}/allLeaves`);
+    return PlexMusic.getTracks(trackObjects);
   }
 }

@@ -135,6 +135,16 @@ export default class CLI {
     const multibar = CLI.getMultiProgressBar();
     const t = new Limiter({ concurrency: 5 });
 
+    /**
+     * [async description]
+     *
+     * @param   {[type]}  file              [file description]
+     * @param   {[type]}  finalDestination  [finalDestination description]
+     * @param   {[type]}  size              [size description]
+     * @param   {[type]}  done              [done description]
+     *
+     * @return  {[type]}                    [return description]
+     */
     async function performCopy(file, finalDestination, size, done) {
       try {
         const bar = multibar.create(size, 0);
@@ -259,7 +269,7 @@ export default class CLI {
    * [description]
    */
   static getFirstNumOfTracks(tracks = [], num = 10) {
-    return tracks.slice(0, num);
+    return num === -1 ? tracks : tracks.slice(0, num);
   }
 
   /**
