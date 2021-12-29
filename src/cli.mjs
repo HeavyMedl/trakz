@@ -5,6 +5,7 @@ import path from 'path';
 import memoize from 'fast-memoize';
 import Limiter from 'async-limiter';
 import cliProgress from 'cli-progress';
+import inquirer from 'inquirer';
 import PlexMusic from './api.mjs';
 
 export default class CLI {
@@ -15,7 +16,12 @@ export default class CLI {
    */
   constructor(options = {}) {
     this.getConfig = memoize(this.getConfig);
+    this.getArtists = memoize(this.getArtists.bind(this));
     this.supportedContainers = options.supportedContainers || ['mp3', 'flac'];
+  }
+
+  async didYouMean(originalInput) {
+
   }
 
   /**

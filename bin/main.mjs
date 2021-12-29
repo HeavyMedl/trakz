@@ -1,9 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-unused-expressions */
 
-import { Command } from 'commander/esm.mjs';
-import CLI from '../src/cli.mjs';
-
 // TODO: all tracks doesn't include singles, EPs, or compilations.
 // TODO: interactive config generator
 //  - hostname and token
@@ -17,6 +14,57 @@ import CLI from '../src/cli.mjs';
 // TODO: If tracks is empty ([]), show the closest match to what the
 // user typed.. Perhaps misspelled or case didn't match. Use
 // levenshtein algorithm.
+
+import { Command } from 'commander/esm.mjs';
+import CLI from '../src/cli.mjs';
+
+/**
+ * [async description]
+ *
+ * @return  {[type]}  [return description]
+ */
+async function artistAction({
+  name: names = [],
+  allArtists = false,
+  popular = false,
+  shuffle = false,
+  limit = -1,
+  copy = undefined,
+  normalizeTitle = false,
+  json = false,
+}) {
+  const cli = new CLI();
+  await cli.init();
+
+  // Get the tracks according to what the user specified with options
+  let tracks = [];
+  if (allArtists) {
+    tracks = await cli.getTracksFromAllArtists(popular, limit, shuffle);
+  } else {
+    tracks = popular
+      ? await cli.getPopularTracks(names, limit, shuffle)
+      : await cli.getAllTracks(names, limit, shuffle);
+  }
+
+  if (tracks.length > 0) {
+    // Do something with the resultant tracks
+    if (copy) {
+      cli.copyTracks(tracks, copy, normalizeTitle);
+    } else {
+      json ? CLI.stdout(tracks) : CLI.display(tracks, normalizeTitle);
+    }
+  } else if (names.length === 0) {
+    // No artists supplied, show artists available?
+    CLI.display(await cli.getArtists());
+  } else if (names.length === 1) {
+    // If we got here, there were no tracks for the artist supplied.
+    // perhaps a typo or case issue? Do we do an interactive mode?
+    CLI.stdout('No results, homie.');
+  } else {
+    CLI.stdout('No results, homie.');
+  }
+  return cli;
+}
 
 const program = new Command();
 program
@@ -38,51 +86,7 @@ program
     '-nt, --normalize-title',
     'Normalizes the track title using Plex metadata',
   )
-  .action(
-    async ({
-      name: names = [],
-      allArtists = false,
-      popular = false,
-      shuffle = false,
-      limit = -1,
-      copy = undefined,
-      normalizeTitle = false,
-      json = false,
-    }) => {
-      const cli = new CLI();
-      await cli.init();
-
-      if (names.length === 0) {
-        // No artists supplied, show artists available?
-        return CLI.display(await cli.getArtists());
-      }
-
-      // Get the tracks according to what the user specified with options
-      let tracks = [];
-      if (allArtists) {
-        tracks = await cli.getTracksFromAllArtists(popular, limit, shuffle);
-      } else {
-        tracks = popular
-          ? await cli.getPopularTracks(names, limit, shuffle)
-          : await cli.getAllTracks(names, limit, shuffle);
-      }
-
-      // Do something with the resultant tracks
-      if (tracks.length > 0) {
-        if (copy) {
-          cli.copyTracks(tracks, copy, normalizeTitle);
-        } else {
-          json ? CLI.stdout(tracks) : CLI.display(tracks, normalizeTitle);
-        }
-      } else if (names.length === 1) {
-        // If we got here, there were no tracks for the artist supplied.
-        // perhaps a typo or case issue? Do we do an interactive mode?
-        CLI.stdout('No results, homie.');
-      } else {
-        CLI.stdout('No results, homie.');
-      }
-    },
-  );
+  .action(artistAction);
 
 program.on('--help', () => {
   process.stdout.write(`
