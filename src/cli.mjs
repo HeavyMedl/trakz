@@ -6,6 +6,8 @@ import memoize from 'fast-memoize';
 import Limiter from 'async-limiter';
 import cliProgress from 'cli-progress';
 import inquirer from 'inquirer';
+import AutocompletePrompt from 'inquirer-autocomplete-prompt';
+import fuzzy from 'fuzzy';
 import PlexMusic from './api.mjs';
 
 export default class CLI {
@@ -20,8 +22,42 @@ export default class CLI {
     this.supportedContainers = options.supportedContainers || ['mp3', 'flac'];
   }
 
-  async didYouMean(originalInput) {
+  /**
+   * [searchChoices description]
+   *
+   * @param   {[type]}  input          [input description]
+   * @param   {[type]}  originalInput  [originalInput description]
+   * @param   {[type]}  choices        [choices description]
+   *
+   * @return  {[type]}                 [return description]
+   */
+  static searchChoices({ input, originalInput, choices }) {
+    // eslint-disable-next-line no-param-reassign
+    input = input || originalInput || '';
+    return fuzzy.filter(input, choices).map((el) => el.original);
+  }
 
+  /**
+   * [choiceHelper description]
+   *
+   * @param   {[type]}  originalInput  [originalInput description]
+   *
+   * @return  {[type]}                 [return description]
+   */
+  static async choiceHelper(originalInput, choices) {
+    inquirer.registerPrompt('autocomplete', AutocompletePrompt);
+    return inquirer.prompt([
+      {
+        type: 'autocomplete',
+        name: 'choice',
+        message: `Oof. No results for '${originalInput}':`,
+        source: (a, input) => CLI.searchChoices({
+          originalInput,
+          input,
+          choices,
+        }),
+      },
+    ]);
   }
 
   /**
@@ -222,8 +258,13 @@ export default class CLI {
    * @return  {[]}                           [return description]
    */
   static display(items = [], normalizeTitle = false) {
-    items.forEach((item) => {
-      CLI.stdout(normalizeTitle ? CLI.getNormalizedTitle(item) : item.file || item);
+    const last = items.length - 1;
+    items.forEach((item, i) => {
+      CLI.stdout(
+        `${normalizeTitle ? CLI.getNormalizedTitle(item) : item.file || item}${
+          i !== last ? '\n' : ''
+        }`,
+      );
     });
   }
 
@@ -236,7 +277,7 @@ export default class CLI {
    */
   static stdout(output) {
     process.stdout.write(
-      typeof output !== 'string' ? `${JSON.stringify(output)}\n` : `${output}\n`,
+      typeof output !== 'string' ? JSON.stringify(output) : output,
     );
   }
 

@@ -11,9 +11,13 @@
 // TODO: Create plex playlist in api
 // TODO: interactive prompt when user passes no artist or just "trakz", or if
 //  user uses "artist" command but no artist
-// TODO: If tracks is empty ([]), show the closest match to what the
-// user typed.. Perhaps misspelled or case didn't match. Use
-// levenshtein algorithm.
+// TODO: Download > Copy?
+// TODO: copy tracks is broken if the plex server's path to the data
+//  doesn't match the client's path to the data. For example: Perhaps the media
+//  lives on a NAS with the path /Media/Music. The plex server mounts the NAS at
+//  /Volumes/Media/Music (OSX). If the client mounts the NAS drive at
+//  H:\Media\Music (Windows) we can no longer use the source path from the plex
+//  server at /Volumes/Media/Music. The source path needs to be overwritable.
 
 import { Command } from 'commander/esm.mjs';
 import CLI from '../src/cli.mjs';
@@ -23,16 +27,17 @@ import CLI from '../src/cli.mjs';
  *
  * @return  {[type]}  [return description]
  */
-async function artistAction({
-  name: names = [],
-  allArtists = false,
-  popular = false,
-  shuffle = false,
-  limit = -1,
-  copy = undefined,
-  normalizeTitle = false,
-  json = false,
-}) {
+async function artistAction(command) {
+  const {
+    name: names = [],
+    allArtists = false,
+    popular = false,
+    shuffle = false,
+    limit = -1,
+    copy = undefined,
+    normalizeTitle = false,
+    json = false,
+  } = command;
   const cli = new CLI();
   await cli.init();
 
@@ -58,8 +63,13 @@ async function artistAction({
     CLI.display(await cli.getArtists());
   } else if (names.length === 1) {
     // If we got here, there were no tracks for the artist supplied.
-    // perhaps a typo or case issue? Do we do an interactive mode?
-    CLI.stdout('No results, homie.');
+    // perhaps a typo or case issue? Initiates interactive mode to
+    // search for existing artists.
+    const { choice } = await CLI.choiceHelper(names[0], await cli.getArtists());
+    artistAction({
+      ...command,
+      name: [choice],
+    });
   } else {
     CLI.stdout('No results, homie.');
   }

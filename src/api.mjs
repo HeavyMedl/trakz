@@ -184,6 +184,9 @@ export default class PlexMusic {
    */
   async getAllTracksByArtistTitle(t) {
     const { ratingKey: artistId = '' } = await this.getArtistByTitle(t);
+    if (!artistId) {
+      return [];
+    }
     const {
       MediaContainer: { Metadata: trackObjects = [] },
     } = await this.query(`/library/metadata/${artistId}/allLeaves`);
